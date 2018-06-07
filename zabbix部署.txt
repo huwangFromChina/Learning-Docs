@@ -1,0 +1,69 @@
+搭建zabbix平台(Ubuntu 16.0.4)
+
+0.安装库配置包，其中包含 apt（软件包管理）配置文件
+wget http://repo.zabbix.com/zabbix/3.2/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.2-1+xenial_all.deb
+dpkg -i zabbix-release_3.2-1+xenial_all.deb
+apt-get update
+
+1.安装Zabbix所需的几个PHP模块
+#apt-get install php7.0 php7.0-gd libapache2-mod-php7.0   php7.0-mysql php7.0-bcmath php7.0-mbstring php7.0-xml
+
+2.安装Apache2
+#apt-get install apache2
+
+3.配置PHP /etc/php/7.0/apache2/php.ini
+date.timezone = Asia/Shanghai
+max_input_time = 600
+max_execution_time= 600
+post_max_size = 32M
+重启apache服务器/etc/init.d/apache2 restart
+
+4.安装zabbix server
+#apt-get install zabbix-server-mysql
+
+5.配置数据库
+启动mysql -uroot -p;
+
+mysql> CREATE DATABASE zabbix CHARACTER SET utf8 COLLATE utf8_bin;
+
+mysql> GRANT ALL PRIVILEGES ON zabbix.* TO zabbix@localhost IDENTIFIED BY zabbix;
+
+mysql> flush privileges;
+
+6.然后执行下列语句，导入初始化结构和数据到 zabbix 数据库中
+zcat /usr/share/doc/zabbix-server-mysql/create.sql.gz | mysql -uzabbix -p zabbix  
+
+7.修改/etc/zabbix/zabbix_server.conf文件
+DBHost=localhost  
+DBName=zabbix  
+DBUser=zabbix  
+DBPassword=<password>
+
+8.安装zabbix web端
+apt-get install zabbix-frontend-php
+
+9.拷贝zabbix到apache2的前端文件夹里
+cp -r /usr/share/zabbix /var/www/html/zabbix
+
+10.启动服务/etc/init.d/zabbix-server restart
+打开http://host/zabbix/,可以看到初始配置页面。
+
+在其他机器上安装zabbix agent 
+#apt-get install zabbix-agent
+修改配置文件
+Server=192.168.32.147 服务端ip
+ServerActive=192.168.32.147 服务端ip
+Hostname=Hostname 自定义即可
+启动zabbix-agent
+/etc/init.d/zabbix-agent start
+
+11.服务端安装zabbix-get工具
+apt-get install zabbix-get
+
+12.服务端连接客户端测试（返回客户端的hostname）
+zabbix_get -s 192.168.32.143(客户端IP) -p10050 -k "system.hostname"
+
+13.修改web端为中文
+vim /usr/share/zabbix/include/locales.inc.php
+将zh的display选项改为true
+

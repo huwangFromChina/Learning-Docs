@@ -1,0 +1,10 @@
+InfluxDb的安装与使用（Ubuntu 16.0.4）
+
+1.下载安装influxDb
+wget https://dl.influxdata.com/influxdb/releases/influxdb_1.2.4_amd64.deb
+
+sudo dpkg -i influxdb_1.2.4_amd64.deb
+ 
+2.启动influxdb 
+启动服务端：influxd run
+在新的页面启动客户端influx
